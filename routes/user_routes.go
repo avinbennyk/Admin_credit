@@ -9,9 +9,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// SetupRoutes defines the user-related routes
 func SetupRoutes(app *fiber.App) {
-	// Public routes (e.g., fetching user data)
+
 	app.Get("/users", GetUsers)
 	app.Get("/users/:email", GetUser)
 
@@ -33,12 +32,10 @@ func GetUsers(c *fiber.Ctx) error {
 func AddUser(c *fiber.Ctx) error {
 	user := new(models.User)
 
-	// Parse the request body into the User model
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Bad Request")
 	}
 
-	// Insert the user into the database
 	if err := database.DB.Create(&user).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error adding user")
 	}
@@ -46,7 +43,6 @@ func AddUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// GetUser fetches a single user by email
 func GetUser(c *fiber.Ctx) error {
 	email := c.Params("email")
 	var user models.User
@@ -56,7 +52,7 @@ func GetUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// CreateUser creates a new user (admin-only)
+// CreateUser creates a new user remember this is an admin-only route
 func CreateUser(c *fiber.Ctx) error {
 	var user models.User
 	if err := c.BodyParser(&user); err != nil {
@@ -66,14 +62,12 @@ func CreateUser(c *fiber.Ctx) error {
 
 	log.Printf("Attempting to create user: %v", user)
 
-	// Check if user already exists
 	var existingUser models.User
 	if err := database.DB.First(&existingUser, "email = ?", user.Email).Error; err == nil {
 		log.Printf("User already exists: %v", existingUser)
 		return c.Status(400).SendString("User already exists")
 	}
 
-	// Create the new user
 	if err := database.DB.Create(&user).Error; err != nil {
 		log.Printf("Error creating user: %v", err)
 		return c.Status(500).SendString("Internal Server Error")
@@ -83,7 +77,7 @@ func CreateUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// UpdateCredits updates user credits (admin-only)
+// this is also an admin only route
 func UpdateCredits(c *fiber.Ctx) error {
 	email := c.Params("email")
 	var user models.User
@@ -111,7 +105,7 @@ func UpdateCredits(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// PauseUser pauses the user account (admin-only)
+// This is also an admin only route
 func PauseUser(c *fiber.Ctx) error {
 	email := c.Params("email")
 	var user models.User
@@ -124,7 +118,7 @@ func PauseUser(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// UnpauseUser reactivates the user account
+// This is also an admin only route
 func UnpauseUser(c *fiber.Ctx) error {
 	email := c.Params("email")
 	var user models.User
@@ -132,12 +126,12 @@ func UnpauseUser(c *fiber.Ctx) error {
 		return c.Status(404).SendString("User not found")
 	}
 
-	user.UnpauseAccount()   // Call the method to unpause the account
-	database.DB.Save(&user) // Save the updated user back to the database
-	return c.JSON(user)     // Return the updated user
+	user.UnpauseAccount()
+	database.DB.Save(&user)
+	return c.JSON(user)
 }
 
-// DeleteUser deletes a user (admin-only)
+// This is also an admin only route
 func DeleteUser(c *fiber.Ctx) error {
 	email := c.Params("email")
 	if err := database.DB.Delete(&models.User{}, "email = ?", email).Error; err != nil {

@@ -7,9 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// AdminMiddleware ensures that only admins can modify users
 func AdminMiddleware(c *fiber.Ctx) error {
-	email := c.Get("X-User-Email") // Replace with actual auth logic
+	email := c.Get("X-User-Email")
 	var user models.User
 
 	// Fetch the user from the database using their email
@@ -17,11 +16,10 @@ func AdminMiddleware(c *fiber.Ctx) error {
 		return c.Status(404).SendString("User not found")
 	}
 
-	// Check if the user is an admin
 	if !user.IsAdmin() {
 		return c.Status(403).SendString("Access denied: Admins only")
 	}
 
-	// Continue to the next middleware/handler if the user is an admin
+	// Continue to the next handler
 	return c.Next()
 }

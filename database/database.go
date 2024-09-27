@@ -11,9 +11,8 @@ import (
 
 var DB *gorm.DB
 
-// ConnectDB initializes the PostgreSQL connection
 func ConnectDB() {
-	// Get the database connection details from environment variables
+
 	dsn := "host=" + os.Getenv("DB_HOST") +
 		" user=" + os.Getenv("DB_USER") +
 		" password=" + os.Getenv("DB_PASSWORD") +
@@ -27,7 +26,6 @@ func ConnectDB() {
 		log.Fatal("Failed to connect to the database!", err)
 	}
 
-	// Migrate the User schema
 	err = DB.AutoMigrate(&models.User{})
 	if err != nil {
 		log.Fatal("Failed to migrate database schema", err)
